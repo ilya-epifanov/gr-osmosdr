@@ -96,6 +96,10 @@
 #include <freesrp_source_c.h>
 #endif
 
+#ifdef ENABLE_SPYSERVER
+#include <spyserver_source_c.h>
+#endif
+
 #include "arg_helpers.h"
 #include "source_impl.h"
 
@@ -173,6 +177,9 @@ source_impl::source_impl( const std::string &args )
 #ifdef ENABLE_FREESRP
   dev_types.push_back("freesrp");
 #endif
+#ifdef ENABLE_SPYSERVER
+  dev_types.push_back("spyserver");
+#endif
   std::cerr << "gr-osmosdr "
             << GR_OSMOSDR_VERSION << " (" << GR_OSMOSDR_LIBVER << ") "
             << "gnuradio " << gr::version() << std::endl;
@@ -242,6 +249,10 @@ source_impl::source_impl( const std::string &args )
 #endif
 #ifdef ENABLE_AIRSPYHF
     BOOST_FOREACH( std::string dev, airspyhf_source_c::get_devices() )
+      dev_list.push_back( dev );
+#endif
+#ifdef ENABLE_SPYSERVER
+    BOOST_FOREACH( std::string dev, spyserver_source_c::get_devices() )
       dev_list.push_back( dev );
 #endif
 #ifdef ENABLE_SOAPY
@@ -369,6 +380,13 @@ source_impl::source_impl( const std::string &args )
 #ifdef ENABLE_AIRSPYHF
     if ( dict.count("airspyhf") ) {
       airspyhf_source_c_sptr src = make_airspyhf_source_c( arg );
+      block = src; iface = src.get();
+    }
+#endif
+
+#ifdef ENABLE_SPYSERVER
+    if ( dict.count("spyserver") ) {
+      spyserver_source_c_sptr src = make_spyserver_source_c( arg );
       block = src; iface = src.get();
     }
 #endif
